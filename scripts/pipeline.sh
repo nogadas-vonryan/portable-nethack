@@ -9,7 +9,7 @@ ARCH="${ARCH:-x86_64}"
 MODE="${PIPELINE_MODE:-local}"
 SKIP_UPDATE=0
 VARIANT=""
-SUPPORTED_VARIANTS="dnao, evilhack, nethack, nethack367, all"
+SUPPORTED_VARIANTS="dnao, evilhack, nethack, nethack367, splicehack, all"
 
 usage() {
   cat <<'EOF'
@@ -19,7 +19,7 @@ Usage:
   ./scripts/pipeline.sh [options]
 
 Options:
-  --variant <name>   Required. One of: dnao, evilhack, nethack, nethack367, all
+  --variant <name>   Required. One of: dnao, evilhack, nethack, nethack367, splicehack, all
   --mode <mode>      Build mode: local or github-actions (default: local)
                      Can also be set through PIPELINE_MODE.
   --work-dir <path>  Checkout/cache directory (default: portable-nethack/.work)
@@ -30,6 +30,7 @@ Options:
 Examples:
   ./scripts/pipeline.sh --variant nethack
   ./scripts/pipeline.sh --variant all --mode github-actions
+  ./scripts/pipeline.sh --variant splicehack
   ./scripts/pipeline.sh --variant evilhack --skip-update
 EOF
 }
@@ -231,7 +232,7 @@ case "$VARIANT" in
   all)
     run_all
     ;;
-  dnao|evilhack|nethack|nethack367)
+  dnao|evilhack|nethack|nethack367|splicehack)
     run_selected "$VARIANT"
     ;;
   *)
