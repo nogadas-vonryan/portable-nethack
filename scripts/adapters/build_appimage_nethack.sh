@@ -51,8 +51,12 @@ mkdir -p "$ABS_OUTPUT_DIR"
 echo "==> Running setup.sh sys/unix/hints/unix to distribute Makefiles"
 sh sys/unix/setup.sh sys/unix/hints/unix
 
-echo "==> Fetching Lua dependency"
-make "${MAKE_VARS[@]}" fetch-lua
+if make -n "${MAKE_VARS[@]}" fetch-lua >/dev/null 2>&1; then
+  echo "==> Fetching Lua dependency"
+  make "${MAKE_VARS[@]}" fetch-lua
+else
+  echo "==> fetch-lua target not available on this branch; skipping"
+fi
 
 echo "==> Building NetHack (top-level make all)"
 make "${MAKE_VARS[@]}" all
