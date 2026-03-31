@@ -10,8 +10,8 @@
 
 list_variants() {
   cat <<'EOF'
-dnao|https://github.com/Chris-plus-alphanumericgibberish/dNAO.git|compat-3.25.0|repo:scripts/build_appimage.sh
-evilhack|https://github.com/k21971/EvilHack.git|master|repo:scripts/build_appimage.sh
+dnao|https://github.com/Chris-plus-alphanumericgibberish/dNAO.git|compat-3.25.0|pipeline:scripts/adapters/build_appimage_dnao.sh
+evilhack|https://github.com/k21971/EvilHack.git|master|pipeline:scripts/adapters/build_appimage_evilhack.sh
 nethack|https://github.com/NetHack/NetHack.git|NetHack-3.7|pipeline:scripts/adapters/build_appimage_nethack.sh
 EOF
 }

@@ -9,6 +9,7 @@ ARCH="${ARCH:-x86_64}"
 MODE="${PIPELINE_MODE:-local}"
 SKIP_UPDATE=0
 VARIANT=""
+SUPPORTED_VARIANTS="dnao, evilhack, nethack, all"
 
 usage() {
   cat <<'EOF'
@@ -202,28 +203,26 @@ build_variant() {
 }
 
 run_all() {
-  while IFS='|' read -r key repo_url branch build_script_rel; do
-    [[ -z "$key" ]] && continue
-    build_variant "$key" "$repo_url" "$branch" "$build_script_rel"
-  done < <(list_variants)
+  run_selected ""
 }
 
-run_one() {
+run_selected() {
   local selected="$1"
   local found=0
 
   while IFS='|' read -r key repo_url branch build_script_rel; do
     [[ -z "$key" ]] && continue
-    if [[ "$key" == "$selected" ]]; then
-      found=1
-      build_variant "$key" "$repo_url" "$branch" "$build_script_rel"
-      break
+    if [[ -n "$selected" && "$key" != "$selected" ]]; then
+      continue
     fi
+
+    found=1
+    build_variant "$key" "$repo_url" "$branch" "$build_script_rel"
   done < <(list_variants)
 
   if [[ "$found" -ne 1 ]]; then
     echo "Unknown variant: $selected" >&2
-    echo "Supported variants: dnao, evilhack, nethack, all" >&2
+    echo "Supported variants: $SUPPORTED_VARIANTS" >&2
     exit 1
   fi
 }
@@ -233,11 +232,11 @@ case "$VARIANT" in
     run_all
     ;;
   dnao|evilhack|nethack)
-    run_one "$VARIANT"
+    run_selected "$VARIANT"
     ;;
   *)
     echo "Invalid variant: $VARIANT" >&2
-    echo "Supported variants: dnao, evilhack, nethack, all" >&2
+    echo "Supported variants: $SUPPORTED_VARIANTS" >&2
     exit 1
     ;;
 esac
