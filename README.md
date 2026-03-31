@@ -4,12 +4,12 @@ Standardized pipeline to update, build, and package NetHack variants as AppImage
 
 ## Included variants
 
+- NetHack 3.7 (`NetHack`)
+- NetHack 3.6.7 (`NetHack`, branch `NetHack-3.6`)
 - dNAO (`dNAO`)
 - EvilHack (`EvilHack`)
 - SpliceHack (`SpliceHack`)
 - UnNetHack (`unnethack`)
-- NetHack 3.7 (`NetHack`)
-- NetHack 3.6.7 (`NetHack`, branch `NetHack-3.6`)
 
 ## Quick start
 
