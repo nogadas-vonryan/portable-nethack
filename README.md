@@ -45,6 +45,6 @@ ARCH=aarch64 ./scripts/pipeline.sh --variant nethack
 
 - `--variant` is required. Building all variants only happens when you explicitly pass `--variant all`.
 - The pipeline is self-contained and does not depend on sibling folders. It uses upstream GitHub repositories listed in `scripts/variants.sh`.
-- Variant build entrypoints can be repo-local (`repo:<path>`) or portable-nethack adapters (`pipeline:<path>`). NetHack uses a portable-nethack adapter because upstream `NetHack-3.7` does not ship `scripts/build_appimage.sh`.
+- Variant build entrypoints can be repo-local (`repo:<path>`) or portable-nethack adapters (`pipeline:<path>`). dNAO, EvilHack, and NetHack currently use portable-nethack adapters because upstream branches do not ship compatible AppImage helper scripts.
 - The pipeline intentionally performs a fast-forward update only. If a repo has local modifications, update is skipped for that repo.
-- Variant-specific packaging details remain in each upstream `scripts/build_appimage.sh`, while this repo provides one standard entrypoint and output layout.
+- Variant-specific packaging is implemented in `portable-nethack/scripts/adapters/` while this repo provides one standard entrypoint and output layout.
