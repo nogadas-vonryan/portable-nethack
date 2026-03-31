@@ -80,7 +80,22 @@ copy_needed_libs() {
 
   local bin
   for bin in "$@"; do
-    ldd "$bin" | awk '/=> \/|^\// { for (i=1; i<=NF; ++i) if ($i ~ /^\//) print $i }' | while IFS= read -r lib; do
+    if [[ ! -e "$bin" ]]; then
+      echo "Warning: binary not found for dependency scan: $bin" >&2
+      continue
+    fi
+
+    local ldd_output
+    if ! ldd_output="$(ldd "$bin" 2>&1)"; then
+      if printf '%s\n' "$ldd_output" | grep -Eq 'not a dynamic executable|statically linked'; then
+        echo "==> Skipping shared library copy for static binary: $bin"
+        continue
+      fi
+      echo "Warning: ldd failed for $bin; skipping dependency copy" >&2
+      continue
+    fi
+
+    printf '%s\n' "$ldd_output" | awk '/=> \/|^\// { for (i=1; i<=NF; ++i) if ($i ~ /^\//) print $i }' | while IFS= read -r lib; do
       [[ -z "$lib" ]] && continue
 
       local base

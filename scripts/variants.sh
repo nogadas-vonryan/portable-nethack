@@ -15,5 +15,6 @@ evilhack|https://github.com/k21971/EvilHack.git|master|pipeline:scripts/adapters
 nethack|https://github.com/NetHack/NetHack.git|NetHack-3.7|pipeline:scripts/adapters/build_appimage_nethack.sh
 nethack367|https://github.com/NetHack/NetHack.git|NetHack-3.6|pipeline:scripts/adapters/build_appimage_nethack367.sh
 splicehack|https://github.com/k21971/SpliceHack.git|master|pipeline:scripts/adapters/build_appimage_splicehack.sh
+unnethack|https://github.com/UnNetHack/UnNetHack.git|master|pipeline:scripts/adapters/build_appimage_unnethack.sh
 EOF
 }
