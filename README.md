@@ -7,6 +7,7 @@ Standardized pipeline to update, build, and package NetHack variants as AppImage
 - dNAO (`dNAO`)
 - EvilHack (`EvilHack`)
 - NetHack 3.7 (`NetHack`)
+- NetHack 3.6.7 (`NetHack`, branch `NetHack-3.6`)
 
 ## Quick start
 
@@ -27,13 +28,14 @@ This will:
 ## Usage
 
 ```bash
-./scripts/pipeline.sh --variant dnao|evilhack|nethack|all [--mode local|github-actions] [--skip-update] [--arch x86_64|aarch64]
+./scripts/pipeline.sh --variant dnao|evilhack|nethack|nethack367|all [--mode local|github-actions] [--skip-update] [--arch x86_64|aarch64]
 ```
 
 Examples:
 
 ```bash
 ./scripts/pipeline.sh --variant nethack
+./scripts/pipeline.sh --variant nethack367
 ./scripts/pipeline.sh --variant all
 ./scripts/pipeline.sh --variant all --mode github-actions
 ./scripts/pipeline.sh --variant evilhack --skip-update
