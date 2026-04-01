@@ -1,0 +1,61 @@
+name: Build AppImage (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: Variant to build
+        required: true
+        type: choice
+        options:
+          - dnao
+          - evilhack
+          - nethack
+          - nethack367
+          - splicehack
+          - unnethack
+      arch:
+        description: Target architecture
+        required: true
+        default: x86_64
+        type: choice
+        options:
+          - x86_64
+          - aarch64
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            bison \
+            flex \
+            pkg-config \
+            libncurses-dev \
+            patchelf \
+            curl \
+            file
+
+      - name: Build selected AppImage
+        run: |
+          chmod +x scripts/pipeline.sh scripts/variants.sh scripts/adapters/*.sh
+          ./scripts/pipeline.sh --variant "${{ inputs.variant }}" --mode github-actions --arch "${{ inputs.arch }}"
+
+      - name: Upload AppImage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: appimage-${{ inputs.variant }}-${{ inputs.arch }}
+          path: dist/${{ inputs.variant }}/*.AppImage
+          if-no-files-found: error

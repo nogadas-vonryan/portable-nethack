@@ -1,0 +1,50 @@
+name: Build All AppImages (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      arch:
+        description: Target architecture
+        required: true
+        default: x86_64
+        type: choice
+        options:
+          - x86_64
+          - aarch64
+
+permissions:
+  contents: read
+
+jobs:
+  build-all:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            bison \
+            flex \
+            pkg-config \
+            libncurses-dev \
+            patchelf \
+            curl \
+            file
+
+      - name: Build all AppImages
+        run: |
+          chmod +x scripts/pipeline.sh scripts/variants.sh scripts/adapters/*.sh
+          ./scripts/pipeline.sh --variant all --mode github-actions --arch "${{ inputs.arch }}"
+
+      - name: Upload all AppImage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: appimages-all-${{ inputs.arch }}
+          path: dist/**/*.AppImage
+          if-no-files-found: error
