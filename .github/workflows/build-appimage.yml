@@ -1,4 +1,4 @@
-name: Build AppImage (Manual)
+name: Build AppImage
 
 on:
   workflow_dispatch:
@@ -50,8 +50,8 @@ jobs:
 
       - name: Build selected AppImage
         run: |
-          chmod +x scripts/pipeline.sh scripts/variants.sh scripts/adapters/*.sh
-          ./scripts/pipeline.sh --variant "${{ inputs.variant }}" --mode github-actions --arch "${{ inputs.arch }}"
+          chmod +x scripts/build.sh scripts/pipeline.sh scripts/variants.sh scripts/adapters/*.sh
+          ./scripts/build.sh --variant "${{ inputs.variant }}" --mode github-actions --arch "${{ inputs.arch }}"
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v4

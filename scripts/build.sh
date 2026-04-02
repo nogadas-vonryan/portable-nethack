@@ -13,10 +13,10 @@ SUPPORTED_VARIANTS="dnao, evilhack, nethack, nethack367, hackem, slashem-extende
 
 usage() {
   cat <<'EOF'
-Standard pipeline for NetHack variants -> AppImage.
+Standard build script for NetHack variants -> AppImage.
 
 Usage:
-  ./scripts/pipeline.sh [options]
+  ./scripts/build.sh [options]
 
 Options:
   --variant <name>   Required. One of: dnao, evilhack, nethack, nethack367, slashem-extended, splicehack, unnethack, all
@@ -28,11 +28,11 @@ Options:
   -h, --help         Show this help
 
 Examples:
-  ./scripts/pipeline.sh --variant nethack
-  ./scripts/pipeline.sh --variant all --mode github-actions
-  ./scripts/pipeline.sh --variant splicehack
-  ./scripts/pipeline.sh --variant unnethack
-  ./scripts/pipeline.sh --variant evilhack --skip-update
+  ./scripts/build.sh --variant nethack
+  ./scripts/build.sh --variant all --mode github-actions
+  ./scripts/build.sh --variant splicehack
+  ./scripts/build.sh --variant unnethack
+  ./scripts/build.sh --variant evilhack --skip-update
 EOF
 }
 

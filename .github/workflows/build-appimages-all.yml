@@ -1,4 +1,4 @@
-name: Build All AppImages (Manual)
+name: Build All AppImages
 
 on:
   workflow_dispatch:
@@ -39,8 +39,8 @@ jobs:
 
       - name: Build all AppImages
         run: |
-          chmod +x scripts/pipeline.sh scripts/variants.sh scripts/adapters/*.sh
-          ./scripts/pipeline.sh --variant all --mode github-actions --arch "${{ inputs.arch }}"
+          chmod +x scripts/build.sh scripts/pipeline.sh scripts/variants.sh scripts/adapters/*.sh
+          ./scripts/build.sh --variant all --mode github-actions --arch "${{ inputs.arch }}"
 
       - name: Upload all AppImage artifacts
         uses: actions/upload-artifact@v4
