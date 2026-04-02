@@ -9,7 +9,7 @@ ARCH="${ARCH:-x86_64}"
 MODE="${PIPELINE_MODE:-local}"
 SKIP_UPDATE=0
 VARIANT=""
-SUPPORTED_VARIANTS="dnao, evilhack, nethack, nethack367, slashem-extended, splicehack, unnethack, all"
+SUPPORTED_VARIANTS="dnao, evilhack, nethack, nethack367, hackem, slashem-extended, splicehack, unnethack, all"
 
 usage() {
   cat <<'EOF'
@@ -233,7 +233,7 @@ case "$VARIANT" in
   all)
     run_all
     ;;
-  dnao|evilhack|nethack|nethack367|slashem-extended|splicehack|unnethack)
+  dnao|evilhack|nethack|nethack367|hackem|slashem-extended|splicehack|unnethack)
     run_selected "$VARIANT"
     ;;
   *)
