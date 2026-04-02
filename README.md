@@ -8,6 +8,7 @@ Standardized pipeline to update, build, and package NetHack variants as AppImage
 - NetHack 3.6.7 (`NetHack`, branch `NetHack-3.6`)
 - dNAO (`dNAO`)
 - EvilHack (`EvilHack`)
+- SLASHEM Extended (`slashem-extended`)
 - SpliceHack (`SpliceHack`)
 - UnNetHack (`unnethack`)
 
