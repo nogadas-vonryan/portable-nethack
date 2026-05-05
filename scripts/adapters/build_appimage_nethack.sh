@@ -5,18 +5,18 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=common.sh
 source "$SCRIPT_DIR/common.sh"
 
-# Build a portable AppImage for NetHack 3.7 using an upstream clone as source.
+# Build a portable AppImage for NetHack 5.0 using an upstream clone as source.
 # Required env:
 #   REPO_ROOT   Path to cloned NetHack repository
 # Optional env:
 #   APP_NAME=NetHack
-#   APP_VERSION=3.7.0
+#   APP_VERSION=5.0.0
 #   APPDIR=AppDir
 #   OUTPUT_DIR=dist
 #   ARCH=x86_64
 
 APP_NAME="${APP_NAME:-NetHack}"
-APP_VERSION="${APP_VERSION:-3.7.0}"
+APP_VERSION="${APP_VERSION:-5.0.0}"
 APPDIR="${APPDIR:-AppDir}"
 OUTPUT_DIR="${OUTPUT_DIR:-dist}"
 ARCH="${ARCH:-x86_64}"

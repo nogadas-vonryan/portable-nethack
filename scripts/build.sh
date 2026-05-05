@@ -9,7 +9,7 @@ ARCH="${ARCH:-x86_64}"
 MODE="${PIPELINE_MODE:-local}"
 SKIP_UPDATE=0
 VARIANT=""
-SUPPORTED_VARIANTS="dnao, evilhack, hackem, nethack, nethack367, sil-q, slashem-extended, splicehack, unnethack, all"
+SUPPORTED_VARIANTS="dnao, evilhack, hackem, nethack, nethack37, nethack36, sil-q, slashem-extended, splicehack, unnethack, all"
 
 usage() {
   cat <<'EOF'
@@ -19,7 +19,7 @@ Usage:
   ./scripts/build.sh [options]
 
 Options:
-  --variant <name>   Required. One of: dnao, evilhack, hackem, nethack, nethack367, sil-q, slashem-extended, splicehack, unnethack, all
+  --variant <name>   Required. One of: dnao, evilhack, hackem, nethack, nethack37, nethack36, sil-q, slashem-extended, splicehack, unnethack, all
   --mode <mode>      Build mode: local or github-actions (default: local)
                      Can also be set through PIPELINE_MODE.
   --work-dir <path>  Checkout/cache directory (default: portable-nethack/.work)
@@ -233,7 +233,7 @@ case "$VARIANT" in
   all)
     run_all
     ;;
-  dnao|evilhack|hackem|nethack|nethack367|sil-q|slashem-extended|splicehack|unnethack)
+  dnao|evilhack|hackem|nethack|nethack37|nethack36|sil-q|slashem-extended|splicehack|unnethack)
     run_selected "$VARIANT"
     ;;
   *)

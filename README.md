@@ -4,8 +4,9 @@ Build scripts for distributing NetHack variants as portable AppImages.
 
 ## Included variants
 
-- NetHack 3.7 (`NetHack`)
-- NetHack 3.6.7 (`NetHack`, branch `NetHack-3.6`)
+- NetHack 5.0 (`NetHack`, branch `NetHack-5.0`)
+- NetHack 3.7 (`NetHack`, branch `NetHack-3.7`)
+- NetHack 3.6 (`NetHack`, branch `NetHack-3.6`)
 - dNAO (`dNAO`)
 - EvilHack (`EvilHack`)
 - HackEM (`hackem`)
@@ -36,14 +37,15 @@ This will:
 ## Usage
 
 ```bash
-./scripts/build.sh --variant dnao|evilhack|hackem|nethack|nethack367|sil-q|slashem-extended|splicehack|unnethack|all [--mode local|github-actions] [--skip-update] [--arch x86_64|aarch64]
+./scripts/build.sh --variant dnao|evilhack|hackem|nethack|nethack37|nethack36|sil-q|slashem-extended|splicehack|unnethack|all [--mode local|github-actions] [--skip-update] [--arch x86_64|aarch64]
 ```
 
 Examples:
 
 ```bash
 ./scripts/build.sh --variant nethack
-./scripts/build.sh --variant nethack367
+./scripts/build.sh --variant nethack37
+./scripts/build.sh --variant nethack36
 ./scripts/build.sh --variant hackem
 ./scripts/build.sh --variant all
 ./scripts/build.sh --variant all --mode github-actions

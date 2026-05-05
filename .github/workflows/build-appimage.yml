@@ -12,7 +12,8 @@ on:
           - evilhack
           - hackem
           - nethack
-          - nethack367
+          - nethack37
+          - nethack36
           - splicehack
           - unnethack
       arch:
