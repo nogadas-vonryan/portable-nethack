@@ -27,7 +27,15 @@ cd "$ROOT_DIR"
 ABS_APPDIR="$ROOT_DIR/$APPDIR"
 ABS_OUTPUT_DIR="$(resolve_output_dir "$ROOT_DIR" "$OUTPUT_DIR")"
 
-need_cmds make gcc pkg-config ldd curl file awk sed grep install gzip
+# bison/flex (yacc/lex) are required to build NetHack's level compiler output.
+need_cmds make gcc pkg-config ldd curl file awk sed grep install gzip bison flex
+
+# Restore config.h so re-runs of this script (or build.sh updates) are idempotent.
+# Without this, the sed patch below dirties the git checkout and blocks
+# build.sh's fast-forward auto-update on subsequent runs.
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  git checkout -- include/config.h 2>/dev/null || true
+fi
 
 GZIP_PATH="$(command -v gzip)"
 echo "==> Using savefile compressor: $GZIP_PATH"
@@ -36,30 +44,87 @@ sed -i "s|^#define COMPRESS \"/usr/bin/compress\".*|#define COMPRESS \"$GZIP_PAT
 sed -i 's|^#define COMPRESS_EXTENSION "\.Z".*|#define COMPRESS_EXTENSION ".gz"      /* gzip extension */|' include/config.h
 
 TERM_LIBS=""
+CURSPKG=""
 if pkg-config --exists ncursesw; then
+  CURSPKG="ncursesw"
   TERM_LIBS="$(pkg-config --libs ncursesw)"
 elif pkg-config --exists ncurses; then
+  CURSPKG="ncurses"
   TERM_LIBS="$(pkg-config --libs ncurses)"
 else
+  echo "WARNING: neither ncursesw nor ncurses found via pkg-config; falling back to -lncurses -ltinfo" >&2
+  echo "Install libncurses dev files (e.g. sudo apt install libncurses-dev) for curses support." >&2
   TERM_LIBS="-lncurses -ltinfo"
 fi
 echo "==> Using terminal libs: $TERM_LIBS"
 
-MAKE_VARS=(WINTTYLIB="$TERM_LIBS" WINLIB="$TERM_LIBS")
+# NOTE: do NOT pass WINLIB= on the make command line. The linux.370/linux.500
+# hints files compute WINLIB via 'WINLIB += $(CURSESLIB)'; a command-line
+# WINLIB would override that and silently drop curses from the link.
+# Pass the tty/curses lib vars instead and let the hints file assemble WINLIB.
+MAKE_VARS=(
+  WANT_WIN_TTY=1 WANT_WIN_CURSES=1 WANT_DEFAULT=curses
+  WINTTYLIB="$TERM_LIBS" WINCURSESLIB="$TERM_LIBS" CURSESLIB="$TERM_LIBS"
+)
+if [[ -n "$CURSPKG" ]]; then
+  MAKE_VARS+=(CURSPKG="$CURSPKG")
+fi
 mkdir -p "$ABS_OUTPUT_DIR"
 
-echo "==> Running setup.sh sys/unix/hints/unix to distribute Makefiles"
-sh sys/unix/setup.sh sys/unix/hints/unix
+# Pick a hints file with curses support. Order matters:
+#   linux.500 (NetHack 5.0) -> linux.370 (NetHack 3.7) -> linux (NetHack 3.6,
+#   which builds tty+curses unconditionally) -> unix (legacy tty-only fallback).
+HINTS_FILE=""
+for candidate in sys/unix/hints/linux.500 sys/unix/hints/linux.370 sys/unix/hints/linux sys/unix/hints/unix; do
+  if [[ -f "$candidate" ]]; then
+    HINTS_FILE="$candidate"
+    break
+  fi
+done
+if [[ -z "$HINTS_FILE" ]]; then
+  echo "No usable hints file found under sys/unix/hints" >&2
+  exit 1
+fi
+if [[ "$HINTS_FILE" == "sys/unix/hints/unix" ]]; then
+  echo "WARNING: falling back to tty-only hints file 'sys/unix/hints/unix'; curses will NOT be built" >&2
+fi
 
-if make -n "${MAKE_VARS[@]}" fetch-lua >/dev/null 2>&1; then
-  echo "==> Fetching Lua dependency"
-  make "${MAKE_VARS[@]}" fetch-lua
+echo "==> Running setup.sh $HINTS_FILE to distribute Makefiles"
+# A previous run may have distributed Makefiles from a different hints file
+# (e.g. legacy tty-only 'unix'); stale Makefiles/objects would then survive
+# and the curses objects would never be rebuilt. Clean first if needed.
+if [[ -f src/Makefile || -f src/cursmain.o || -f src/wintty.o ]]; then
+  echo "==> Cleaning stale objects from previous build configuration"
+  make spotless >/dev/null 2>&1 || make clean >/dev/null 2>&1 || true
+fi
+sh sys/unix/setup.sh "$HINTS_FILE"
+
+# The Lua fetch target is spelled 'fetch-lua' on some branches and
+# 'fetch-Lua' in NewInstall.unx; try both so we never silently skip it.
+FETCH_LUA_TARGET=""
+for candidate in fetch-lua fetch-Lua; do
+  if make -n "${MAKE_VARS[@]}" "$candidate" >/dev/null 2>&1; then
+    FETCH_LUA_TARGET="$candidate"
+    break
+  fi
+done
+if [[ -n "$FETCH_LUA_TARGET" ]]; then
+  echo "==> Fetching Lua dependency ($FETCH_LUA_TARGET)"
+  make "${MAKE_VARS[@]}" "$FETCH_LUA_TARGET"
 else
   echo "==> fetch-lua target not available on this branch; skipping"
 fi
 
-echo "==> Building NetHack (top-level make all)"
+echo "==> Building NetHack with curses support (top-level make all)"
 make "${MAKE_VARS[@]}" all
+
+# Fail loudly if the curses windowport was not compiled in (silent tty-only
+# regression). cursmain.o is only produced when WANT_WIN_CURSES is honoured.
+if ! ls src/cursmain.o src/$(uname -m 2>/dev/null)/cursmain.o >/dev/null 2>&1 && \
+   ! find src -maxdepth 2 -name 'cursmain.o' -print -quit 2>/dev/null | grep -q .; then
+  echo "WARNING: cursmain.o not found; build may be tty-only despite WANT_WIN_CURSES=1" >&2
+  echo "Used hints file: $HINTS_FILE" >&2
+fi
 
 rm -rf "$ABS_APPDIR"
 mkdir -p "$ABS_APPDIR/usr/bin" "$ABS_APPDIR/usr/share/$APP_NAME" "$ABS_APPDIR/usr/lib"

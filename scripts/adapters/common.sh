@@ -132,12 +132,15 @@ build_appimage() {
   local desktop_file="$6"
   local icon_file="$7"
 
-  "$TMP_BIN_DIR/linuxdeploy" --appdir "$appdir" --desktop-file "$desktop_file" --icon-file "$icon_file" --output appimage || true
+  # Allow the AppImage tools to run where FUSE is unavailable.
+  export APPIMAGE_EXTRACT_AND_RUN=1
+  if ! "$TMP_BIN_DIR/linuxdeploy" --appdir "$appdir" --desktop-file "$desktop_file" --icon-file "$icon_file" --output appimage; then
+    echo "WARNING: linuxdeploy failed; continuing with appimagetool only (output may miss deployed deps)" >&2
+  fi
 
   local out_name
   out_name="$app_name-$app_version-$arch.AppImage"
 
-  export APPIMAGE_EXTRACT_AND_RUN=1
   ARCH="$arch" "$TMP_BIN_DIR/appimagetool" "$appdir" "$output_dir/$out_name"
   chmod +x "$output_dir/$out_name"
 
