@@ -108,6 +108,8 @@ else
 fi
 cp "$BIN_SOURCE" "$ABS_APPDIR/usr/bin/splicehack-bin"
 
+write_seed_manifest "$ABS_APPDIR/usr/share/$APP_NAME"
+
 cat > "$ABS_APPDIR/AppRun" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
@@ -116,12 +118,32 @@ export LD_LIBRARY_PATH="\$HERE/usr/lib\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
 RUNTIME_BASE="\${XDG_DATA_HOME:-\$HOME/.local/share}"
 RUNTIME_DIR="\$RUNTIME_BASE/SpliceHack-AppImage"
 SEED_DIR="\$HERE/usr/share/$APP_NAME"
+SEED_VERSION="$APP_VERSION"
 
 mkdir -p "\$RUNTIME_DIR"
 
 if [[ ! -f "\$RUNTIME_DIR/perm" ]]; then
   cp -an "\$SEED_DIR/." "\$RUNTIME_DIR/"
+elif [[ "\$(cat "\$RUNTIME_DIR/.app-version" 2>/dev/null)" != "\$SEED_VERSION" ]]; then
+  # AppImage upgraded: refresh packaged seed files, preserving user state
+  # (saves, records, logs, customized sysconf).
+  if [[ -f "\$RUNTIME_DIR/.seed-manifest" ]]; then
+    while IFS= read -r -d '' seed_file; do
+      case "\$seed_file" in
+        ./sysconf|./perm|./record|./logfile|./xlogfile|./livelog|./save/*|./dumplog/*)
+          continue
+          ;;
+      esac
+      if [[ -e "\$SEED_DIR/\$seed_file" || -L "\$SEED_DIR/\$seed_file" ]]; then
+        mkdir -p "\$RUNTIME_DIR/\$(dirname "\$seed_file")"
+        cp -a "\$SEED_DIR/\$seed_file" "\$RUNTIME_DIR/\$seed_file"
+      fi
+    done < "\$RUNTIME_DIR/.seed-manifest"
+  fi
+  cp -an "\$SEED_DIR/." "\$RUNTIME_DIR/"
 fi
+cp -a "\$SEED_DIR/.seed-manifest" "\$RUNTIME_DIR/.seed-manifest"
+echo "\$SEED_VERSION" > "\$RUNTIME_DIR/.app-version"
 
 if [[ ! -f "\$RUNTIME_DIR/sysconf" && -f "\$SEED_DIR/sysconf" ]]; then
   cp -a "\$SEED_DIR/sysconf" "\$RUNTIME_DIR/sysconf"

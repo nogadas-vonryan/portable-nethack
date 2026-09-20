@@ -74,6 +74,17 @@ download_appimage_tools() {
   chmod +x "$TMP_BIN_DIR/linuxdeploy" "$TMP_BIN_DIR/appimagetool"
 }
 
+# Snapshot the list of packaged seed files so AppRun can refresh exactly
+# those files when the AppImage version changes, while preserving user
+# state (saves, records, logs, customized sysconf).
+write_seed_manifest() {
+  local seed_dir="$1"
+
+  # Include symlinks (-type l): some install layouts ship them, and a changed
+  # link target should refresh on upgrade like any other seed file.
+  ( cd "$seed_dir" && find . \( -type f -o -type l \) ! -name '.seed-manifest' -print0 | LC_ALL=C sort -z ) > "$seed_dir/.seed-manifest"
+}
+
 copy_needed_libs() {
   local appdir="$1"
   shift
